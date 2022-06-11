@@ -16,6 +16,8 @@ br_netfilter
 EOF
 sudo modprobe br_netfilter
 
+echo '* libraries/restart-without-asking boolean true' | sudo debconf-set-selections
+
 
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
