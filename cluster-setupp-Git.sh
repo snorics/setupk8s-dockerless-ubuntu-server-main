@@ -7,12 +7,23 @@ sudo apt-get update -y
 sudo apt-get upgrade -y
 
 #Install containerd
-sudo apt-get install containerd -y
+#sudo apt-get install containerd -y
 
 #Configure containerd and start the service
-sudo mkdir -p /etc/containerd
-sudo su -
-containerd config default  /etc/containerd/config.toml
+#sudo mkdir -p /etc/containerd
+#sudo su -
+#containerd config default  /etc/containerd/config.toml
+
+apt install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+apt update
+apt-cache policy docker-ce
+apt install docker-ce
+systemctl status docker
+usermod -aG docker snorics
+
 
 #Next, install Kubernetes. First you need to add the repository's GPG key with the command:
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
