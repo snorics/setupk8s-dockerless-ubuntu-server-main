@@ -14,6 +14,7 @@ sudo ufw reload
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 br_netfilter
 EOF
+sudo modprobe br_netfilter
 
 
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
