@@ -70,7 +70,10 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 sleep 3
 kubectl get pods -A
 
- kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/cloud/deploy.yaml
- 
+
+git clone https://github.com/scriptcamp/nginx-ingress-controller.git
+kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
+
+
 
 
