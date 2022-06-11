@@ -61,6 +61,9 @@ sudo nano /etc/fstab
 #Disable swap from comand line also 
 sudo swapoff -a
 
+sudo  rm /etc/containerd/config.toml
+systemctl restart containerd
+
 #Pull the necessary containers with the command:
 sudo kubeadm config images pull
 
