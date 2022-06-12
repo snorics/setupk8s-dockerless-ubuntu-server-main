@@ -55,6 +55,12 @@ curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/
 DEBIAN_FRONTEND=noninteractive sudo apt -y update
 DEBIAN_FRONTEND=noninteractive sudo apt -y install cri-o cri-o-runc
 
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 [crio.network]
@@ -97,6 +103,13 @@ sudo systemctl daemon-reload
 
 sudo systemctl enable crio.service
 sudo systemctl start crio.service
+
+
+
+
+
+
+
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 
 sudo mkdir -p $HOME/.kube
@@ -119,5 +132,7 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 #kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'  
 #kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 #kubectl port-forward svc/argocd-server -n argocd 8080:443 --address="0.0.0.0"
+
+
 
 
