@@ -69,7 +69,7 @@ cat  << EOF | sudo tee /var/lib/kubelet/kubeadm-flags.env
 KUBELET_KUBEADM_ARGS="--cgroup-driver=systemd --container-runtime=remote --container-runtime-endpoint=unix:///var/run/crio/crio.sock --pod-infra-container-image=k8s.gcr.io/pause:3.7"
 EOF
 
-cat  << EOF | sudo tee 100-crio-bridge.conf
+cat  << EOF | sudo tee /etc/cni/net.d/100-crio-bridge.conf
 {
     "cniVersion": "0.3.1",
     "name": "crio",
