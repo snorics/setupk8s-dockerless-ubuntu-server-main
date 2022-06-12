@@ -115,6 +115,9 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 #git clone https://github.com/scriptcamp/nginx-ingress-controller.git
 kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
 
-
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+#kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'  
+#kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+#kubectl port-forward svc/argocd-server -n argocd 8080:443 --address="0.0.0.0"
 
 
