@@ -54,12 +54,53 @@ curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:sta
 curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
 DEBIAN_FRONTEND=noninteractive sudo apt -y update
 DEBIAN_FRONTEND=noninteractive sudo apt -y install cri-o cri-o-runc
+
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+[crio.network]
+network_dir = "/etc/cni/net.d/"
+plugin_dirs = [
+    "/opt/cni/bin/",
+    "/usr/libexec/cni/",
+]
+EOF
+
+cat  << EOF | sudo tee /var/lib/kubelet/kubeadm-flags.env
+KUBELET_KUBEADM_ARGS="--cgroup-driver=systemd --container-runtime=remote --container-runtime-endpoint=unix:///var/run/crio/crio.sock --pod-infra-container-image=k8s.gcr.io/pause:3.7"
+EOF
+
+cat  << EOF | sudo tee 100-crio-bridge.conf
+{
+    "cniVersion": "0.3.1",
+    "name": "crio",
+    "type": "bridge",
+    "bridge": "cni0",
+    "isGateway": true,
+    "ipMasq": true,
+    "hairpinMode": true,
+    "ipam": {
+        "type": "host-local",
+        "routes": [
+            { "dst": "0.0.0.0/0" },
+            { "dst": "1100:200::1/24" }
+        ],
+        "ranges": [
+            [{ "subnet": "10.244.0.0/16" }],
+            [{ "subnet": "1100:200::/24" }]
+        ]
+    }
+}
+EOF
+
+sudo systemctl daemon-reload
+
+
 sudo systemctl enable crio.service
 sudo systemctl start crio.service
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 
 sudo mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 
@@ -70,8 +111,8 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 sleep 3
 kubectl get pods -A
 
-
-git clone https://github.com/scriptcamp/nginx-ingress-controller.git
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
+#git clone https://github.com/scriptcamp/nginx-ingress-controller.git
 kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kubernetes.io/master-
 
 
