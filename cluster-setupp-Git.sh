@@ -137,5 +137,6 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 
 kubectl create namespace kubeapps
 helm install kubeapps --namespace kubeapps bitnami/kubeapps
+#   kubectl port-forward --namespace kubeapps service/kubeapps 8080:80
 
 
