@@ -145,3 +145,8 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 #   kubectl port-forward --namespace kubeapps service/kubeapps 8080:80
 
 
+sudo apt install build-essential git
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+
