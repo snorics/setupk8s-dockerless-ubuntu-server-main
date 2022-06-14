@@ -132,6 +132,7 @@ kubectl taint nodes --all node-role.kubernetes.io/control-plane- node-role.kuber
 
 
 curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.yaml
+#kubectl apply -f calico.yaml
 
 ##kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 #kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'  
