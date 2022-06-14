@@ -173,3 +173,25 @@ kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
 
 kubectl get pods -n openebs
 
+kubectl get node --show-labels
+kubectl get bd -n openebs
+
+
+
+cat  << EOF | sudo tee ./csps.yaml
+apiVersion: cstor.openebs.io/v1
+kind: CStorPoolCluster
+metadata:
+ name: cstor-disk-pool
+ namespace: openebs
+spec:
+ pools:
+   - nodeSelector:
+       kubernetes.io/hostname: "master"
+     dataRaidGroups:
+       - blockDevices:
+           - blockDeviceName: "blockdevice-e73b795418aa45dbc89156b3f8953f6b"
+     poolConfig:
+       dataRaidGroupType: "mirror"
+EOF
+
