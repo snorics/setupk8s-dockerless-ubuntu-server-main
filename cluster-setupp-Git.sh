@@ -192,6 +192,6 @@ spec:
        - blockDevices:
            - blockDeviceName: "blockdevice-e73b795418aa45dbc89156b3f8953f6b"
      poolConfig:
-       dataRaidGroupType: "mirror"
+       dataRaidGroupType: "stripe"
 EOF
 
