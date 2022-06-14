@@ -144,9 +144,21 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 ##helm install kubeapps --namespace kubeapps bitnami/kubeapps
 #   kubectl port-forward --namespace kubeapps service/kubeapps 8080:80
 
+#for BREW
+##sudo apt install build-essential git
+##/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+##eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-sudo apt install build-essential git
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-brew install derailed/k9s/k9s
+#k9S
+##brew install derailed/k9s/k9s
+
+# helm
+sudo snap install helm --classic
+
+
+#https://openebs.io/docs/user-guides/installation
+kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
+kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
+
+
 
