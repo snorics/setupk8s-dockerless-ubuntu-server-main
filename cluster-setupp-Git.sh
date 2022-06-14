@@ -98,7 +98,7 @@ cat  << EOF | sudo tee /etc/cni/net.d/100-crio-bridge.conf
     }
 }
 EOF
-
+sudo rm -fr /etc/cni/net.d/100-crio-bridge.conf
 sudo systemctl daemon-reload
 
 
@@ -153,7 +153,7 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 ##brew install derailed/k9s/k9s
 
 # helm
-sudo snap install helm --classic
+#sudo snap install helm --classic
 
 
 #https://openebs.io/docs/user-guides/installation
