@@ -124,7 +124,7 @@ sudo systemctl start crio.service
 
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 
-sudo mkdir -p $HOME/.kube
+mkdir -p $HOME/.kube
 sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
@@ -208,7 +208,7 @@ parameters:
   # cstorPoolCluster should have the name of the CSPC
   cstorPoolCluster: cstor-disk-pool
   # replicaCount should be <= no. of CSPI created in the selected CSPC
-  replicaCount: "3"
+  replicaCount: "1"
 EOF
 
 kubectl apply -f ./cstor-disk.yaml
@@ -216,3 +216,48 @@ kubectl apply -f ./cstor-disk.yaml
 
 kubectl get cspc -n openebs
 kubectl get cspi -n openebs
+
+kubectl get sc -A
+kubectl get cvc -A
+
+cat  << EOF | tee ./pesistent.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cstor-pvc
+spec:
+  storageClassName: cstor-csi-disk
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+EOF
+
+kubectl apply -f ./pesistent.yaml
+
+cat << EOF | tee ./busybox.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+  namespace: default
+spec:
+  containers:
+  - command:
+       - sh
+       - -c
+       - 'date >> /mnt/openebs-csi/date.txt; hostname >> /mnt/openebs-csi/hostname.txt; sync; sleep 5; sync; tail -f /dev/null;'
+    image: busybox
+    imagePullPolicy: Always
+    name: busybox
+    volumeMounts:
+    - mountPath: /mnt/openebs-csi
+      name: demo-vol
+  volumes:
+  - name: demo-vol
+    persistentVolumeClaim:
+      claimName: cstor-pvc
+EOF
+
+kubectl apply -f busybox.yml
