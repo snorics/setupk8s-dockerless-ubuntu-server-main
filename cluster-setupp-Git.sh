@@ -63,12 +63,23 @@ sudo apt-get install helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
 
 
+#cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+#[crio.network]
+#network_dir = "/etc/cni/net.d/"
+#plugin_dirs = [
+#    "/opt/cni/bin/",
+#    "/usr/libexec/cni/",
+#]
+#EOF
+
+
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 [crio.network]
 network_dir = "/etc/cni/net.d/"
 plugin_dirs = [
-    "/opt/cni/bin/",
     "/usr/libexec/cni/",
+    "/opt/cni/bin/",
+ 
 ]
 EOF
 
