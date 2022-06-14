@@ -194,4 +194,25 @@ spec:
      poolConfig:
        dataRaidGroupType: "stripe"
 EOF
+kubectl apply -f ./csps.yaml
 
+cat  << EOF | tee ./cstor-disk.yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: cstor-csi-disk
+provisioner: cstor.csi.openebs.io
+allowVolumeExpansion: true
+parameters:
+  cas-type: cstor
+  # cstorPoolCluster should have the name of the CSPC
+  cstorPoolCluster: cstor-disk-pool
+  # replicaCount should be <= no. of CSPI created in the selected CSPC
+  replicaCount: "3"
+EOF
+
+kubectl apply -f ./cstor-disk.yaml
+
+
+kubectl get cspc -n openebs
+kubectl get cspi -n openebs
