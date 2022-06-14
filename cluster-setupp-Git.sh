@@ -160,5 +160,5 @@ sudo snap install helm --classic
 kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
 kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
 
-
+kubectl get pods -n openebs
 
