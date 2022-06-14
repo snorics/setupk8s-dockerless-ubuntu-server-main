@@ -148,5 +148,5 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 sudo apt install build-essential git
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
+brew install derailed/k9s/k9s
 
