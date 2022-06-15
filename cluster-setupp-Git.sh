@@ -331,3 +331,5 @@ spec:
       claimName: nfs-pvc
 EOF
 kubectl apply -f ./busybox.yml
+
+echo "source <(kubectl completion bash)" >> ~/.bashrc
