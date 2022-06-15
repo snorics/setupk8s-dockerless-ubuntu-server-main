@@ -168,96 +168,171 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 
 
 #https://openebs.io/docs/user-guides/installation
-kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
-kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
+#kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
+#kubectl apply -f https://openebs.github.io/charts/cstor-operator.yaml
 
-kubectl get pods -n openebs
+#kubectl get pods -n openebs
 
-kubectl get node --show-labels
-kubectl get bd -n openebs
+#kubectl get node --show-labels
+#kubectl get bd -n openebs
 
 
 
-cat  << EOF | sudo tee ./csps.yaml
-apiVersion: cstor.openebs.io/v1
-kind: CStorPoolCluster
-metadata:
- name: cstor-disk-pool
- namespace: openebs
-spec:
- pools:
-   - nodeSelector:
-       kubernetes.io/hostname: "master"
-     dataRaidGroups:
-       - blockDevices:
-           - blockDeviceName: "blockdevice-e73b795418aa45dbc89156b3f8953f6b"
-     poolConfig:
-       dataRaidGroupType: "stripe"
-EOF
-kubectl apply -f ./csps.yaml
+#cat  << EOF | sudo tee ./csps.yaml
+#apiVersion: cstor.openebs.io/v1
+#kind: CStorPoolCluster
+#metadata:
+# name: cstor-disk-pool
+# namespace: openebs
+#spec:
+# pools:
+#   - nodeSelector:
+#       kubernetes.io/hostname: "master"
+#     dataRaidGroups:
+#       - blockDevices:
+#           - blockDeviceName: "blockdevice-e73b795418aa45dbc89156b3f8953f6b"
+#     poolConfig:
+#       dataRaidGroupType: "stripe"
+#EOF
+#kubectl apply -f ./csps.yaml
 
-cat  << EOF | tee ./cstor-disk.yaml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: cstor-csi-disk
-provisioner: cstor.csi.openebs.io
-allowVolumeExpansion: true
-parameters:
-  cas-type: cstor
+#cat  << EOF | tee ./cstor-disk.yaml
+#kind: StorageClass
+#apiVersion: storage.k8s.io/v1
+#metadata:
+#  name: cstor-csi-disk
+##provisioner: cstor.csi.openebs.io
+#allowVolumeExpansion: true
+#parameters:
+ # cas-type: cstor
   # cstorPoolCluster should have the name of the CSPC
   cstorPoolCluster: cstor-disk-pool
   # replicaCount should be <= no. of CSPI created in the selected CSPC
   replicaCount: "1"
+#EOF
+
+#kubectl apply -f ./cstor-disk.yaml
+
+
+#kubectl get cspc -n openebs
+#kubectl get cspi -n openebs
+
+#kubectl get sc -A
+#kubectl get cvc -A
+
+#cat  << EOF | tee ./pesistent.yaml
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+#  name: cstor-pvc
+#spec:
+#  storageClassName: cstor-csi-disk
+#  accessModes:
+#    - ReadWriteOnce
+#  resources:
+#    requests:
+#      storage: 5Gi
+#EOF
+
+#kubectl apply -f ./pesistent.yaml
+
+
+#cat << EOF | tee ./busybox.yml
+#apiVersion: v1
+#kind: Pod
+#metadata:
+#  name: busybox
+#  namespace: default
+#spec:
+#  containers:
+#  - command:
+#       - sh
+#       - -c
+#       - 'date >> /mnt/openebs-csi/date.txt; hostname >> /mnt/openebs-csi/hostname.txt; sync; sleep 5; sync; tail -f /dev/null;'
+#    image: busybox
+#    imagePullPolicy: Always
+#    name: busybox
+#    volumeMounts:
+#    - mountPath: /mnt/openebs-csi
+#      name: demo-vol
+#  volumes:
+#  - name: demo-vol
+#    persistentVolumeClaim:
+#      claimName: cstor-pvc
+#EOF
+
+#kubectl apply -f busybox.yml
+
+
+cat << EOF | tee ./nfs-pv.yml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs
+  mountOptions:
+    - hard
+  nfs:
+    path: /data/storage
+    server: nas.fritz.box
 EOF
 
-kubectl apply -f ./cstor-disk.yaml
+kubectl apply -f ./nfs-pv.yml
 
 
-kubectl get cspc -n openebs
-kubectl get cspi -n openebs
 
-kubectl get sc -A
-kubectl get cvc -A
-
-cat  << EOF | tee ./pesistent.yaml
-kind: PersistentVolumeClaim
+cat << EOF | tee ./nfs-pvc.yml
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: cstor-pvc
+  name: nfs-pvc
 spec:
-  storageClassName: cstor-csi-disk
+  storageClassName: nfs
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
 EOF
-
-kubectl apply -f ./pesistent.yaml
+kubectl apply -f ./nfs-pvc.yml
 
 cat << EOF | tee ./busybox.yml
-apiVersion: v1
-kind: Pod
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: busybox
-  namespace: default
+  name: nfs-busybox
 spec:
-  containers:
-  - command:
-       - sh
-       - -c
-       - 'date >> /mnt/openebs-csi/date.txt; hostname >> /mnt/openebs-csi/hostname.txt; sync; sleep 5; sync; tail -f /dev/null;'
-    image: busybox
-    imagePullPolicy: Always
-    name: busybox
-    volumeMounts:
-    - mountPath: /mnt/openebs-csi
-      name: demo-vol
-  volumes:
-  - name: demo-vol
-    persistentVolumeClaim:
-      claimName: cstor-pvc
-EOF
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nfs-busybox
+  template:
+    metadata:
+      labels:
+        name: nfs-busybox
+    spec:
+      containers:
+      - image: busybox
+        command:
+          - sh
+          - -c
+          - 'while true; do date > /mnt/index.html; hostname >> /mnt/index.html; sleep $(($RANDOM % 5 + 5)); done'
+        imagePullPolicy: IfNotPresent
+        name: busybox
+        volumeMounts:
+          - name: my-pvc-nfs
+            mountPath: "/mnt"
+      volumes:
+      - name: my-pvc-nfs
+        persistentVolumeClaim:
+          claimName: nfs
 
-kubectl apply -f busybox.yml
+EOF
+kubectl apply -f ./busybox.yml
