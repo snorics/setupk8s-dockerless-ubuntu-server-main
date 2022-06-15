@@ -308,35 +308,26 @@ EOF
 kubectl apply -f ./nfs-pvc.yml
 
 cat << EOF | tee ./busybox.yml
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
-  name: nfs-busybox
+  name: busybox
+  namespace: default
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: nfs-busybox
-  template:
-    metadata:
-      labels:
-        name: nfs-busybox
-    spec:
-      containers:
-      - image: busybox
-        command:
-          - sh
-          - -c
-          - 'while true; do date > /mnt/index.html; hostname >> /mnt/index.html; sleep $(($RANDOM % 5 + 5)); done'
-        imagePullPolicy: IfNotPresent
-        name: busybox
-        volumeMounts:
-          - name: my-pvc-nfs
-            mountPath: "/mnt"
-      volumes:
-      - name: my-pvc-nfs
-        persistentVolumeClaim:
-          claimName: nfs
-
+  containers:
+  - command:
+       - sh
+       - -c
+       - 'while true; do date > /mnt/storage/index.html; hostname >> /mnt/storage/index.html; sleep 7; done'
+    image: busybox
+    imagePullPolicy: Always
+    name: busybox
+    volumeMounts:
+    - mountPath: /mnt/storage
+      name: demo-vol
+  volumes:
+  - name: demo-vol
+    persistentVolumeClaim:
+      claimName: nfs-pvc
 EOF
 kubectl apply -f ./busybox.yml
