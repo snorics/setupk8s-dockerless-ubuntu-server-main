@@ -166,6 +166,10 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 # helm
 #sudo snap install helm --classic
 
+#nfs-common
+sudo apt-get install nfs-common
+
+
 
 #https://openebs.io/docs/user-guides/installation
 #kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
