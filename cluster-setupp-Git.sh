@@ -333,3 +333,4 @@ EOF
 kubectl apply -f ./busybox.yml
 
 echo "source <(kubectl completion bash)" >> ~/.bashrc
+source <(kubectl completion bash)
