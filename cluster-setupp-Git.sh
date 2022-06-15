@@ -167,7 +167,7 @@ curl https://projectcalico.docs.tigera.io/manifests/calico-typha.yaml -o calico.
 #sudo snap install helm --classic
 
 #nfs-common
-sudo apt-get install nfs-common
+DEBIAN_FRONTEND=noninteractive sudo apt-get -y install nfs-common
 
 
 
